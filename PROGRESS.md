@@ -7,15 +7,13 @@ Paper: Daniel & Moskowitz (2016), "Momentum Crashes". Paper sample: 1927–2013.
 | Part | Status |
 |---|---|
 | Download CRSP monthly + Fama-French | done |
-| Download CRSP daily | running (about 70% done) |
+| Download CRSP daily | done |
 | Monthly momentum portfolios | done, checked against Daniel's |
-| Tables 1, 2, 3, 4, 5 (monthly) | done |
-| Figure 1 | done |
-| Daily portfolios, Figures 2 and 3, daily skewness | waiting for the daily download |
-| Dynamic strategy (Figure 5, Table 7) | waiting for the daily download |
+| Daily momentum portfolios | done, checked against Daniel's |
+| Tables 1, 2, 3, 4, 5 | done |
+| Figures 1, 2, 3 | done |
+| Dynamic strategy (Figure 5, Table 7) | done |
 | Tables 6, 8–12 | not planned (need VIX swaps, international data, other asset classes) |
-
-The daily part runs on its own as a Slurm job when the download finishes.
 
 ## How we build momentum (same as the paper)
 
@@ -39,8 +37,8 @@ We compare our monthly portfolio returns with Daniel's published ones, 1959–20
 | Each decile (D1 … D10) | 0.997 – 0.999 | | |
 | WML | 0.995 | 1.76%/month | 1.71%/month |
 | WML, NYSE cut-offs | 0.998 | 1.29%/month | 1.28%/month |
-
-A test on daily data (1959–1968) also matched: WML correlation 0.997.
+| Daily WML | 0.992 | | |
+| Daily WML, NYSE cut-offs | 0.996 | | |
 We have about 3% more stocks per decile. That's probably because the new CRSP format
 defines "common stock" a little differently.
 
@@ -57,12 +55,17 @@ and compare with the numbers printed in the paper.
 | Table 1: WML alpha (%/year) | 22.2 | 22.7 |
 | Table 1: WML beta | −0.58 | −0.59 |
 | Table 1: WML Sharpe ratio | 0.60 | 0.61 |
-| Table 1: WML skewness | −4.70 | −4.83 |
+| Table 1: WML skewness (monthly) | −4.70 | −4.83 |
+| Table 1: WML skewness (daily) | −1.18 | −1.19 |
 | Table 2: worst month | Aug 1932, −74.4% | Aug 1932, −75.1% |
 | Table 3 (2): beta change in bear markets | −1.131 (t = −13.4) | −1.136 (t = −13.4) |
 | Table 3 (4): extra beta when market goes up | −0.727 (t = −5.6) | −0.790 (t = −4.4) |
 | Table 4: loser up-market beta | 0.600 | 0.570 |
 | Table 5 (4): bear × variance | −0.397 (t = −5.7) | −0.360 (t = −5.2) |
+| Table 7A (1): dyn alpha on Mkt + WML (%/year) | 23.7 (t = 12.0) | 24.2 (t = 11.3) |
+| Table 7A (4): dyn alpha on Mkt + cvol (%/year) | 7.3 (t = 6.9) | 8.2 (t = 6.0) |
+| Table 7B (1): cvol alpha on Mkt + WML (%/year) | 14.3 (t = 11.4) | 14.0 (t = 10.6) |
+| Table 7B (4): cvol alpha on Mkt + dyn (%/year) | −0.7 (t = −0.7) | 2.5 (t = 1.9) |
 
 The worst-15 list is the same months, in almost the same order.
 
@@ -71,6 +74,10 @@ The worst-15 list is the same months, in almost the same order.
 - We use the 2017 version of Daniel's data, which is slightly different from what the paper used.
 - The bear-market flag needs 24 months of market history. Our Fama-French data starts in July 1926,
   so the flag is missing for Jan 1927 – Jun 1928 (18 months). This only matters for this 1927 check.
+
+The biggest gap is Table 7B (4): in the paper, dyn fully explains cvol (alpha −0.7%). For us a small
+alpha is left (2.5%, t = 1.9, not significant at 5%). The dynamic weights depend on GARCH fits, so
+small differences in the volatility model can move this number.
 
 ### Check 3: our data vs Daniel's data, same years
 
@@ -84,6 +91,7 @@ Same tables, same years (1960–2013), our portfolios vs Daniel's:
 | Table 3 (2): beta change in bear markets | −1.05 | −1.03 |
 | Table 3 (4): extra beta when market goes up | −0.44 | −0.44 |
 | Table 5 (4): bear × variance | −0.58 | −0.57 |
+| Dynamic strategy Sharpe ratio | 1.34 | 1.33 |
 
 **Result: almost identical.** So when our 1960+ numbers differ from the paper, it's because of the
 **years**, not our data or code.
@@ -102,6 +110,17 @@ From `results/tables_allfirm.md`:
 - **Weaker without the 1930s.** The "option-like" part (beta drops *more* when the market goes up)
   is weaker after 1960: t = −2.9 in Table 3 column (3), and not significant in column (4).
   In the paper it's strong, mostly because of the 1930s.
+- **The dynamic strategy works.** All three below are scaled to the same 19% volatility (Figure 5):
+
+  | | Sharpe ratio | Worst month |
+  |---|---|---|
+  | Plain WML (not scaled) | 0.71 | −47% |
+  | Constant volatility (cvol) | 1.09 | −18% |
+  | Dynamic, in-sample (like the paper) | 1.23 | −18% |
+  | Dynamic, out-of-sample (from 1972) | 1.08 | −19% |
+
+  The dynamic strategy beats WML and cvol (Table 7: alpha 32%/year on Mkt + WML, 12%/year on
+  Mkt + cvol, both t > 6). The out-of-sample version is about as good as cvol, not better.
 
 ### After the paper (2013–2025)
 
@@ -110,6 +129,7 @@ This is new data the paper never saw.
 - WML still earns 17% a year, but with a lower Sharpe ratio (0.50).
 - New crashes: Jan 2023 (−36%), Apr 2020 (−29%), Nov 2020 vaccine rally (−27%).
 - Bear × variance still predicts crashes (t = −4.4). But there are only 8 bear-market months, so this is a hint, not proof.
+- Scaling still helps. Sharpe ratio: WML 0.50, cvol 0.60, dynamic 0.68 (in-sample), 0.65 (out-of-sample).
 
 ## Not the same as the paper
 
@@ -117,10 +137,10 @@ This is new data the paper never saw.
 - **Data:** CRSP's new CIZ format. Delisting returns are already included in it.
 - **Market and risk-free rate:** from the Fama-French data on WRDS. The paper uses the CRSP index for the bear flag. Fama-French's market is built from CRSP, so it's nearly the same.
 - **Dynamic strategy:** we also run an out-of-sample version that only uses past data (from 1970). The paper's main version uses the full sample.
-- **Table 7:** we run the plain columns (1, 3, 4, 6). We skip the "conditional" columns (2, 5).
+- **Table 7:** we run columns (1) and (4) as in the paper. Our "FF" columns add SMB and HML but
+  skip the paper's "conditional" interaction terms. We skip columns (2) and (5).
 
 ## Next
 
-1. Daily download finishes → daily pipeline runs by itself.
-2. Fill in the dynamic strategy results here (Figure 5 Sharpe ratios, Table 7).
-3. Upload the final data and results to Google Drive.
+All planned parts are done. Possible extras: the paper's subsample plots (Figure 5, by quarter-century),
+and the "conditional" Table 7 columns.

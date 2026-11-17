@@ -189,3 +189,86 @@ _mean, sd, alpha in %/year over the risk-free rate. sk = skewness of log returns
 | Bear (IB=1)       |    90.00 |             -0.48 |           13.46 |                 0.59 |      -1.13 |
 | Bear, market up   |    50.00 |             -6.23 |           13.77 |                 5.27 |      -1.13 |
 | Bear, market down |    40.00 |              6.71 |            8.91 |                -5.25 |      -0.66 |
+
+## Dynamic strategy (Section 4)
+
+### Expected return: WML on IB*var_m (const x100)
+
+|          | WML            |
+|:---------|:---------------|
+| const    | 1.954 [6.89]   |
+| IB*var_m | -0.360 [-5.21] |
+| R2 (%)   | 2.6            |
+| N        | 1017           |
+
+### Expected volatility: realized WML vol on GARCH and 126-day vol (Appendix D)
+
+|          | realized vol   |
+|:---------|:---------------|
+| const    | 0.000 [0.11]   |
+| garch_is | 0.678 [17.54]  |
+| rv126    | 0.264 [7.14]   |
+| R2 (%)   | 62.7           |
+| N        | 1029           |
+
+### Figure 5 numbers, 1927:01-2013:03 (paper's sample)
+
+|                  |     WML |    cvol |   dyn (IS) |   dyn (OOS) |
+|:-----------------|--------:|--------:|-----------:|------------:|
+| months           | 1034.00 | 1029.00 |    1017.00 |      495.00 |
+| mean (%/yr)      |   18.21 |   19.50 |      22.26 |       23.97 |
+| sd (%/yr)        |   30.02 |   19.00 |      19.00 |       19.00 |
+| Sharpe ratio     |    0.61 |    1.03 |       1.17 |        1.26 |
+| skew (monthly)   |   -2.04 |   -0.44 |       0.48 |        0.30 |
+| worst month (%)  |  -75.12 |  -31.43 |     -27.55 |      -17.69 |
+| FF3 alpha (%/yr) |   25.54 |   22.45 |      22.24 |       25.47 |
+| t(alpha)         |    8.86 |   11.39 |      10.73 |        8.47 |
+
+_cvol and dyn scaled to 19%/year volatility. OOS starts in 1970 and only uses past data._
+
+### Figure 5 numbers, 1960:01-2013:03 (paper overlap)
+
+|                  |    WML |   cvol |   dyn (IS) |   dyn (OOS) |
+|:-----------------|-------:|-------:|-----------:|------------:|
+| months           | 639.00 | 639.00 |     639.00 |      495.00 |
+| mean (%/yr)      |  21.54 |  22.72 |      25.70 |       23.97 |
+| sd (%/yr)        |  28.56 |  19.20 |      19.30 |       19.00 |
+| Sharpe ratio     |   0.75 |   1.18 |       1.33 |        1.26 |
+| skew (monthly)   |  -1.32 |  -0.26 |       0.45 |        0.30 |
+| worst month (%)  | -49.19 | -17.71 |     -17.23 |      -17.69 |
+| FF3 alpha (%/yr) |  26.95 |  25.59 |      27.27 |       25.47 |
+| t(alpha)         |   6.98 |   9.71 |      10.15 |        8.47 |
+
+_cvol and dyn scaled to 19%/year volatility. OOS starts in 1970 and only uses past data._
+
+### Table 7A: alpha of dyn (IS) (daily regressions)
+
+|              | Mkt+WML        | FF+WML         | Mkt+cvol     | FF+cvol      |
+|:-------------|:---------------|:---------------|:-------------|:-------------|
+| alpha (%/yr) | 24.154 [11.25] | 23.101 [10.81] | 8.158 [6.02] | 7.162 [5.34] |
+| R2 (%)       | 26.7           | 27.6           | 70.9         | 71.6         |
+| N            | 22345          | 22345          | 22345        | 22345        |
+
+### Table 7B: alpha of cvol (daily regressions, using dyn (IS))
+
+|              | Mkt+WML        | FF+WML         | Mkt+dyn      | FF+dyn       |
+|:-------------|:---------------|:---------------|:-------------|:-------------|
+| alpha (%/yr) | 13.994 [10.59] | 13.272 [10.09] | 2.541 [1.85] | 3.589 [2.66] |
+| R2 (%)       | 72.3           | 72.6           | 70.3         | 71.3         |
+| N            | 22345          | 22345          | 22345        | 22345        |
+
+### Table 7A: alpha of dyn (OOS) (daily regressions)
+
+|              | Mkt+WML       | FF+WML        | Mkt+cvol     | FF+cvol      |
+|:-------------|:--------------|:--------------|:-------------|:-------------|
+| alpha (%/yr) | 27.367 [9.51] | 23.661 [8.38] | 7.242 [4.86] | 5.040 [3.47] |
+| R2 (%)       | 38.9          | 41.4          | 83.7         | 84.6         |
+| N            | 10404         | 10404         | 10404        | 10404        |
+
+### Table 7B: alpha of cvol (daily regressions, using dyn (OOS))
+
+|              | Mkt+WML       | FF+WML        | Mkt+dyn        | FF+dyn       |
+|:-------------|:--------------|:--------------|:---------------|:-------------|
+| alpha (%/yr) | 18.197 [9.22] | 15.329 [7.95] | -0.328 [-0.22] | 1.935 [1.34] |
+| R2 (%)       | 71.1          | 72.6          | 83.4           | 84.7         |
+| N            | 10404         | 10404         | 10404          | 10404        |

@@ -13,7 +13,7 @@ import pandas as pd
 import dynamic
 import figures
 import tables
-from config import FIGURES, RESULTS, SAMPLES, SAMPLES_FOR_DM, in_sample
+from config import FIGURES, FULL, PAPER, RESULTS, SAMPLES, SAMPLES_FOR_DM, in_sample
 from load_data import load
 
 NOTES = """Numbers in [brackets] are t-stats. "x100" coefficients are in % per month.
@@ -58,7 +58,7 @@ def paper_tables(md, monthly, daily, scheme):
 
 
 def dynamic_tables(md, monthly, daily, vol, scheme, folder):
-    w, mean_fit, vol_fit = dynamic.weights(monthly, vol)
+    w, mean_fit, vol_fit = dynamic.weights(monthly, vol, PAPER if scheme == "dm" else FULL)
     strategies = dynamic.monthly_returns(w, monthly)
     strategies.to_csv(RESULTS / f"strategies_{scheme}.csv")
 

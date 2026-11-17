@@ -51,7 +51,7 @@ cd src
 ../.venv/bin/python download.py daily
 cd ..
 sbatch slurm/monthly_pipeline.sbatch       # 2-3, 5: monthly portfolios, checks, tables (~2 min)
-sbatch slurm/daily_pipeline.sbatch         # 2-5: daily portfolios, GARCH, all tables (~1-2 hours)
+sbatch slurm/daily_pipeline.sbatch         # 2-5: daily portfolios, GARCH, all tables (~15 min)
 ```
 
 ## The code

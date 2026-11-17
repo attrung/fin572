@@ -44,9 +44,10 @@ def out_of_sample_forecasts(df):
     return mean, vol
 
 
-def weights(monthly, vol):
-    """Monthly WML weights for cvol, dyn (IS) and dyn (OOS), plus the IS regressions."""
-    df = in_sample(monthly.join(vol, how="inner"), FULL).copy()
+def weights(monthly, vol, sample=FULL):
+    """Monthly WML weights for cvol, dyn (IS) and dyn (OOS), plus the IS regressions.
+    The in-sample regressions are fitted on `sample` (the paper's 1927-2013 for Daniel's data)."""
+    df = in_sample(monthly.join(vol, how="inner"), sample).copy()
     df["IB*var_m"] = df.IB * df.var_m
 
     mean_fit = ols(df.WML, df[["IB*var_m"]])

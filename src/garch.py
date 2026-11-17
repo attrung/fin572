@@ -69,7 +69,7 @@ def main(scheme="allfirm", oos_start="1970-01"):
     workers = int(os.environ.get("SLURM_CPUS_PER_TASK", 4))
     with Pool(workers) as pool:
         oos = dict(pool.map(forecast_with_data_up_to, [(wml, day) for day in oos_days], chunksize=4))
-    out["garch_oos"] = [oos.get(day, np.nan) for day in month_end.values]
+    out["garch_oos"] = month_end.map(oos).values
 
     out.reset_index().to_parquet(PROCESSED / f"wml_vol_{scheme}.parquet", index=False)
     print(out.dropna().describe(), flush=True)
