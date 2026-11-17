@@ -1,0 +1,6 @@
+# data lives on Adroit scratch and Google Drive (see README)
+data
+.venv/
+logs/
+__pycache__/
+*.pyc
