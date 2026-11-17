@@ -25,7 +25,15 @@ SAMPLES_FOR_DM = {PAPER: ("1927-01", "2013-03"),
                   "1960:01-2013:03 (paper overlap)": ("1960-01", "2013-03")}
 
 
+# Cutoff study (results_quartile/): long the top X%, short the bottom X%
+CUTOFF_RESULTS = ROOT / "results_quartile"
+CUTOFFS = [5, 10, 20, 30, 40]          # percent in each leg; 10 = the paper's deciles
+BASELINE_CUTOFF = 10
+LAST_20 = "2006:01-2025:12 (last 20 years)"
+SAMPLES_CUTOFF = {**SAMPLES, LAST_20: ("2006-01", "2025-12")}
+
+
 def in_sample(df, sample):
     """Rows of a month-indexed frame that fall inside a sample period."""
-    start, end = {**SAMPLES, **SAMPLES_FOR_DM}[sample]
+    start, end = {**SAMPLES, **SAMPLES_FOR_DM, **SAMPLES_CUTOFF}[sample]
     return df.loc[pd.Period(start, "M"):pd.Period(end, "M")]

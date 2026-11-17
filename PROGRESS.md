@@ -14,6 +14,7 @@ Paper: Daniel & Moskowitz (2016), "Momentum Crashes". Paper sample: 1927–2013.
 | Figures 1, 2, 3 | done |
 | Dynamic strategy (Figure 5, Table 7) | done |
 | Tables 6, 8–12 | not planned (need VIX swaps, international data, other asset classes) |
+| Cutoff study: top/bottom 5, 10, 20, 30, 40% | done, see [results_quartile/README.md](results_quartile/README.md) |
 
 ## How we build momentum (same as the paper)
 

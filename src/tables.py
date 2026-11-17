@@ -9,11 +9,12 @@ DECILES = [f"D{i}" for i in range(1, 11)]
 PERCENT_PER_MONTH = 100     # paper reports intercepts "x100", i.e. in %/month
 
 
-def portfolio_stats(m, daily=None):
+def portfolio_stats(m, daily=None, portfolios=DECILES):
     """Table 1: mean, volatility, CAPM alpha and beta, Sharpe ratio, skewness.
-    Mean, sd and alpha are in %/year, in excess of the risk-free rate."""
+    Mean, sd and alpha are in %/year, in excess of the risk-free rate.
+    `portfolios` are the long-only columns (deciles, or Losers/Winners in the cutoff study)."""
     rows = {}
-    for name in DECILES + ["WML", "Mkt"]:
+    for name in list(portfolios) + ["WML", "Mkt"]:
         if name == "Mkt":
             excess, total = m.mktrf, m.mkt
         elif name == "WML":                  # long-short, already an excess return
@@ -69,12 +70,12 @@ def market_timing(m):
     return table
 
 
-def optionality(m, state="IB"):
-    """Table 4: eq. (3) for every decile and WML.
+def optionality(m, state="IB", portfolios=DECILES):
+    """Table 4: eq. (3) for every decile (or other long-only portfolio) and WML.
     Panel A uses the bear-market flag IB, Panel B the bull-market flag IL = 1 - IB."""
     X = _timing_variables(m, state)
     fits = {}
-    for name in DECILES + ["WML"]:
+    for name in list(portfolios) + ["WML"]:
         y = m.WML if name == "WML" else m[name] - m.rf
         fits[name.replace("D", "")] = ols(y, X)
     table = regression_table(fits, ["const", state, "Rm", f"{state}*Rm", f"{state}*IU*Rm"],

@@ -52,7 +52,14 @@ def forecast_with_data_up_to(args):
 
 
 def main(scheme="allfirm", oos_start="1970-01"):
-    wml = daily_wml(scheme)
+    out = volatility_table(daily_wml(scheme), oos_start)
+    out.reset_index().to_parquet(PROCESSED / f"wml_vol_{scheme}.parquet", index=False)
+    print(out.dropna().describe(), flush=True)
+
+
+def volatility_table(wml, oos_start="1970-01", verbose=True, workers=None):
+    """rv126, rv_next, garch_is and garch_oos for each holding month, from daily WML returns.
+    Also used by cutoff_garch.py for the cutoff study."""
     month = wml.index.to_period("M")
     month_end = wml.groupby(month).apply(lambda s: s.index[-1])   # last trading day per month
 
@@ -62,17 +69,16 @@ def main(scheme="allfirm", oos_start="1970-01"):
     out["rv_next"] = np.sqrt((wml ** 2).groupby(month).sum()).reindex(out.index).values
 
     full_fit = fit_gjr_garch(wml)
-    print(full_fit.summary(), flush=True)
+    if verbose:
+        print(full_fit.summary(), flush=True)
     out["garch_is"] = monthly_vol_forecast(full_fit, start=wml.index[0]).reindex(month_end.values).values
 
     oos_days = [day for m, day in month_end.items() if m + 1 >= pd.Period(oos_start, "M")]
-    workers = int(os.environ.get("SLURM_CPUS_PER_TASK", 4))
+    workers = workers or int(os.environ.get("SLURM_CPUS_PER_TASK", 4))
     with Pool(workers) as pool:
         oos = dict(pool.map(forecast_with_data_up_to, [(wml, day) for day in oos_days], chunksize=4))
     out["garch_oos"] = month_end.map(oos).values
-
-    out.reset_index().to_parquet(PROCESSED / f"wml_vol_{scheme}.parquet", index=False)
-    print(out.dropna().describe(), flush=True)
+    return out
 
 
 if __name__ == "__main__":

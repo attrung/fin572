@@ -37,14 +37,22 @@ def cumulative(returns):
     return np.log1p(returns).cumsum()
 
 
-def deciles_over_time(monthly, folder):
+# (label, column) of the long and short legs; the cutoff study passes its own
+DECILE_LEGS = (("Winners (D10)", "D10"), ("Losers (D1)", "D1"))
+
+
+def _legs(legs):
+    (w_label, w_col), (l_label, l_col) = legs
+    return [(w_label, w_col, WINNERS), (l_label, l_col, LOSERS)]
+
+
+def deciles_over_time(monthly, folder, legs=DECILE_LEGS):
     """Figure 1: winners vs losers vs the market."""
     m = in_sample(monthly, FULL)
     dates = m.index.to_timestamp()
     fig, ax = _new_figure(f"Winners, losers and the market, {dates[0].year}–{dates[-1].year}",
                           "Cumulative log return")
-    for label, col, color in [("Winners (D10)", "D10", WINNERS), ("Losers (D1)", "D1", LOSERS),
-                              ("Market", "mkt", MARKET), ("Risk-free", "rf", GREY)]:
+    for label, col, color in _legs(legs) + [("Market", "mkt", MARKET), ("Risk-free", "rf", GREY)]:
         y = cumulative(m[col])
         ax.plot(dates, y, color=color, lw=2, label=label)
         ax.annotate(label, (dates[-1], y.iloc[-1]), xytext=(4, 0), textcoords="offset points",
@@ -53,12 +61,11 @@ def deciles_over_time(monthly, folder):
     _save(fig, ax, folder / "fig1_cumulative_deciles.png")
 
 
-def crash_window(daily, start, end, path, title):
+def crash_window(daily, start, end, path, title, legs=DECILE_LEGS):
     """Figure 2: daily returns through a momentum crash."""
     d = daily.loc[start:end]
     fig, ax = _new_figure(title, "Cumulative log return")
-    for label, col, color in [("Winners (D10)", "D10", WINNERS), ("Losers (D1)", "D1", LOSERS),
-                              ("Market", "mkt", MARKET), ("WML", "WML", WML)]:
+    for label, col, color in _legs(legs) + [("Market", "mkt", MARKET), ("WML", "WML", WML)]:
         ax.plot(d.index, cumulative(d[col]), color=color, lw=2, label=label)
     ax.axhline(0, color=GREY, lw=0.8)
     fig.autofmt_xdate()
@@ -73,12 +80,12 @@ def market_beta_with_lags(excess, mktrf, window=126, lags=10):
     return fit.params.drop(columns="const").sum(axis=1, min_count=1)
 
 
-def rolling_betas(daily, folder):
+def rolling_betas(daily, folder, legs=DECILE_LEGS):
     """Figure 3: market betas of winners and losers over time (126-day window, 10 lags)."""
     d = daily.loc["1960":]
     fig, ax = _new_figure("Market betas of winners and losers (126 days, 10 daily lags)",
                           "Market beta")
-    for label, col, color in [("Winners (D10)", "D10", WINNERS), ("Losers (D1)", "D1", LOSERS)]:
+    for label, col, color in _legs(legs):
         beta = market_beta_with_lags(d[col] - d.rf, d.mktrf)
         ax.plot(beta.index, beta, color=color, lw=1.2, label=label)
     ax.axhline(1, color=GREY, lw=0.8)

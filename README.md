@@ -79,9 +79,23 @@ We make every table three times:
 - `nyse`: our portfolios with NYSE cut-offs (like Ken French's portfolios)
 - `dm`: Daniel's own portfolios. This lets us check our code against the paper.
 
+### Cutoff study (`results_quartile/`)
+
+The same strategy, but long the top X% and short the bottom X% for X = 5, 10, 20, 30, 40
+(10% is the baseline D10 − D1, and matches it exactly). See [results_quartile/README.md](results_quartile/README.md).
+
+| Step | File | What it does |
+|---|---|---|
+| 2 | `cutoff_portfolios.py` | Builds the top / bottom X% legs (monthly and daily); `check` compares 10% with D1/D10. |
+| 4 | `cutoff_garch.py` | GARCH volatility forecasts for each cutoff's WML. |
+| 5 | `cutoff_report.py` | All replication tables and figures per cutoff, plus the comparison across cutoffs. |
+
+Run: `sbatch slurm/cutoff_pipeline.sbatch`, or the five commands in `results_quartile/README.md`.
+
 ## Output
 
 - `results/tables_allfirm.md`, `tables_nyse.md`, `tables_dm.md`: all tables
 - `results/validation_vs_dm.csv`: how close our portfolios are to Daniel's
 - `results/figs/<version>/`: figures
+- `results_quartile/`: the cutoff study (summary tables, per-cutoff reports, figures)
 - `logs/`: download and Slurm logs

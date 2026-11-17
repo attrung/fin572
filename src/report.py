@@ -36,7 +36,7 @@ class Markdown:
             self.text(f"\n_{note}_")
 
     def save(self, path):
-        path.write_text("\n".join(self.lines) + "\n")
+        path.write_text("\n".join(self.lines) + "\n", encoding="utf-8")
 
 
 def paper_tables(md, monthly, daily, scheme):
